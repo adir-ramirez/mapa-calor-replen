@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<title>TIJ2 · Mapa de Calor Replen · TABLET · Regla 40%</title>
+<title>TIJ2 · Mapa de Calor Replen · TABLET · 40% AJUSTADO</title>
 <style>
 :root{--navy:#0b2343;--blue:#1671cf;--border:#cfdced;--bg:#f4f7fb;--text:#0c2748;--muted:#5d7088;--green:#20a84a;--yellow:#f1c40f;--orange:#f28c28;--red:#df3f3f}
 *{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -149,17 +149,41 @@ th:nth-child(4),td:nth-child(4){width:33%}
 .toolbar,.kpi,th,.chip,.brand{-webkit-user-select:none;user-select:none}
 </style>
 
+
+<style id="tabletFinal40">
+/* Ajustes finales para uso operativo en tablet */
+@media (min-width:768px) and (max-width:1366px){
+  body{font-size:17px}
+  .toolbar{position:sticky;top:0;z-index:300}
+  .toolbar .btn{min-height:50px;font-size:15px}
+  .cardHead h2{font-size:24px}
+  .kpi{min-height:96px}
+  .kpi b{font-size:31px}
+  .tableWrap{max-height:calc(100vh - 310px);overflow:auto}
+  th{font-size:14px;padding:15px 10px}
+  td{font-size:15px;padding:15px 10px}
+  .aisle{font-size:22px}
+  .low{font-size:21px}
+  .pct{font-size:19px}
+  .source .btn{min-height:52px}
+}
+@media (orientation:portrait) and (min-width:700px) and (max-width:1100px){
+  .tableWrap{max-height:calc(100vh - 360px)}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+
 </head>
 <body>
 <header><div class="head"><div class="brand">G‑Global</div><div class="title"><h1>TIJ2 · <span>MAPA DE CALOR</span></h1><div id="date"></div><div class="clock" id="clock"></div></div><div class="brand">TechStyle</div></div></header>
-<div class="toolbar"><button class="btn" id="dashBtn">▦ Tablero · Mapa de calor</button><button class="btn active" id="filesBtn">📁 Cargar ItemsByLocation CSV</button><span class="chip ok" style="margin-left:auto">TABLET · REGLA 40%</span></div>
+<div class="toolbar"><button class="btn" id="dashBtn">▦ Tablero · Mapa de calor</button><button class="btn active" id="filesBtn">📁 Cargar ItemsByLocation CSV</button><span class="chip ok" style="margin-left:auto">TABLET · 40% AJUSTADO</span></div>
 <main>
 <section id="dash" class="view">
 <div class="status"><span class="chip ok">Ubicaciones A: base fija incluida</span><span id="chipItems" class="chip">ItemsByLocation CSV: pendiente</span></div>
-<div class="card"><div class="cardHead"><h2>Mapa de Calor · Resumen por Pasillo</h2><p>Un solo renglón por pasillo. La base de Ubicaciones A ya viene integrada.</p></div>
+<div class="card"><div class="cardHead"><h2>Mapa de Calor · Resumen por Pasillo</h2><p>Un solo renglón por pasillo. Locación de oportunidad = vacía o menor a 40%. La ocupación se limita a 100% por locación para evitar que sobrecargas inflen el pasillo.</p></div>
 <div style="padding:0 20px 20px">
-<div class="kpis"><div class="kpi"><small>PASILLOS ANALIZADOS</small><b id="kA">0</b></div><div class="kpi"><small>LOC VACÍAS O ≤40%</small><b id="kL">0</b></div><div class="kpi"><small>OCUPACIÓN GLOBAL</small><b id="kO">0.0%</b></div><div class="kpi"><small>ZONAS</small><b>4</b></div></div>
-<div class="tableWrap"><table><thead><tr><th>Pasillo</th><th>Cuenta / Zona</th><th>Loc Vacías o ≤40%</th><th>Ocupación %</th></tr></thead><tbody id="body"><tr><td colspan="4">Carga el ItemsByLocation CSV para generar el mapa.</td></tr></tbody></table></div>
+<div class="kpis"><div class="kpi"><small>PASILLOS ANALIZADOS</small><b id="kA">0</b></div><div class="kpi"><small>LOC VACÍAS O &lt;40%</small><b id="kL">0</b></div><div class="kpi"><small>OCUPACIÓN GLOBAL</small><b id="kO">0.0%</b></div><div class="kpi"><small>ZONAS</small><b>4</b></div></div>
+<div class="tableWrap"><table><thead><tr><th>Pasillo</th><th>Cuenta / Zona</th><th>Loc Vacías o &lt;40%</th><th>Ocupación %</th></tr></thead><tbody id="body"><tr><td colspan="4">Carga el ItemsByLocation CSV para generar el mapa.</td></tr></tbody></table></div>
 <div class="note"><b>Asignación:</b> A00–A09 Savage · A10–A11 Embroidery / Yitty · A12–A19 Transferencias Fabletics · A20–último pasillo con material = Fabletics Mixto Hombre/Mujer. Material mezclado dentro de A00–A09 se reporta como Savage.</div>
 </div></div></section>
 
@@ -305,7 +329,7 @@ function compute(){
     const n=aisleNo(m.aisle);if(n<0||n>S.maxMaterialAisle)continue;
     const key='A'+String(n).padStart(2,'0'),u=S.locUnits.get(loc)||0;
     let x=g.get(key);if(!x)x={aisle:key,zone:zone(n),low:0,cap:0,units:0};
-    x.cap+=m.cap;x.units+=u;if(u<=0 || (m.cap>0 && u/m.cap<=0.40))x.low++;
+    x.cap+=m.cap;x.units+=Math.min(Math.max(u,0),m.cap);if(u<=0 || (m.cap>0 && u/m.cap<0.40))x.low++;
     g.set(key,x);
   }
   S.rows=[...g.values()].map(x=>({...x,occ:x.cap?x.units/x.cap*100:0})).sort((a,b)=>aisleNo(a.aisle)-aisleNo(b.aisle));
